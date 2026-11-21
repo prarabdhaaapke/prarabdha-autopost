@@ -13,7 +13,8 @@ import json, os, sys, time, datetime as dt
 import urllib.request, urllib.parse, urllib.error
 
 # System-user / Facebook Login tokens use graph.facebook.com (default); Instagram Login tokens use graph.instagram.com.
-HOST = os.environ.get("IG_API_HOST") or "graph.facebook.com"
+# Instagram tokens start with "IG" and use graph.instagram.com; Facebook/system-user tokens use graph.facebook.com.
+HOST = os.environ.get("IG_API_HOST") or ("graph.instagram.com" if os.environ.get("IG_TOKEN", "").startswith("IG") else "graph.facebook.com")
 API = f"https://{HOST}/v22.0"
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 WINDOW_MIN = int(os.environ.get("WINDOW_MIN", "180"))      # post items due within the last N minutes
