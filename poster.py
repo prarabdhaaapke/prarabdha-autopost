@@ -72,9 +72,12 @@ def pick_audio(item):
 def post_reel(item):
     uid = os.environ["IG_USER_ID"]
     last = None; audio = pick_audio(item)
-    for url in (media_url(item["files"][0]), raw_url(item["files"][0])):
+    tries = [(media_url(item["files"][0]), audio), (raw_url(item["files"][0]), audio)]
+    if audio:   # if licensed audio is refused, fall back to the reel's own music
+        tries += [(media_url(item["files"][0]), None), (raw_url(item["files"][0]), None)]
+    for url, aud in tries:
         try:
-            extra = {"audio_configuration": audio} if audio else {}
+            extra = {"audio_configuration": aud} if aud else {}
             c = call("POST", f"{uid}/media", media_type="REELS", video_url=url, caption=item["caption"],
                      share_to_feed="true", thumb_offset=str(item.get("thumb_offset", 1500)), **extra)["id"]
             wait_ready(c); return publish(c)
