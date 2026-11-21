@@ -35,5 +35,5 @@ jobs:
         run: |
           git config user.name "prarabdha-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add posted.json status.json 2>/dev/null || true
+          git add posted.json status.json trending.json 2>/dev/null || true
           git diff --cached --quiet || (git commit -m "bot: posted log / status update" && git push)

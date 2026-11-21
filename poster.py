@@ -126,6 +126,17 @@ def main():
     if {k: v for k, v in old.items() if k != "error"} != {k: v for k, v in st.items() if k != "error"}:
         json.dump(st, open("status.json", "w"), indent=1)
     print("token check:", st)
+    # once a day: save Instagram's current trending licensed audio so new reels can use it
+    tj = json.load(open("trending.json")) if os.path.exists("trending.json") else {}
+    if tj.get("fetched_on") != st["checked_on"]:
+        out = {"fetched_on": st["checked_on"]}
+        for kind in ("music", "original_sound"):
+            try:
+                res = call("GET", "ig_audio", audio_type=kind, user_id=os.environ["IG_USER_ID"])
+                out[kind] = [{k: x.get(k) for k in ("id", "title", "display_artist", "artist", "duration_in_ms", "is_explicit")} for x in res.get("data", [])[:20]]
+            except Exception as e:
+                out[kind + "_error"] = str(e)[:300]
+        json.dump(out, open("trending.json", "w"), ensure_ascii=False, indent=1)
     sched = json.load(open("schedule.json"))
     done = json.load(open("posted.json")) if os.path.exists("posted.json") else {}
     now = dt.datetime.now(IST); changed = False
