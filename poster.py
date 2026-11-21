@@ -59,11 +59,18 @@ def pick_audio(item):
     a = item.get("audio")
     if not a or HOST != "graph.facebook.com": return None   # licensed audio needs a Facebook Login token
     try:
-        if a == "trending":
-            res = call("GET", "ig_audio", audio_type="music", user_id=os.environ["IG_USER_ID"])
+        if a == "trending" or a.startswith("search:"):
+            q = a.split(":", 1)[1].strip() if a.startswith("search:") else None
+            params = dict(audio_type="music", user_id=os.environ["IG_USER_ID"])
+            if q: params["search_query"] = q
+            res = call("GET", "ig_audio", **params)
             lst = res.get("data", [])
-            if not lst: return None
-            a = str(lst[0]["id"]); print("  trending audio:", lst[0].get("title", a))
+            print("  audio search", q or "(trending)", "->", [(x.get("id"), x.get("title"), x.get("artist") or x.get("display_artist")) for x in lst[:5]])
+            if q:   # only accept a result that really matches the requested artist/title words
+                words = [w.lower() for w in q.split() if len(w) > 2]
+                lst = [x for x in lst if any(w in json.dumps(x).lower() for w in words)]
+            if not lst: print("  no licensed match; using the reel's own music"); return None
+            a = str(lst[0]["id"]); print("  using audio:", lst[0].get("title", a))
         return json.dumps({"audio_id": str(a), "audio_volume": item.get("audio_volume", 60),
                            "video_volume": item.get("video_volume", 25)})
     except Exception as e:
