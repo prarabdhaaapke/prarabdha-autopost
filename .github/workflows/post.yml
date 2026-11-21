@@ -1,0 +1,35 @@
+name: Post due Instagram content
+on:
+  schedule:
+    - cron: "*/30 * * * *"      # every 30 min (UTC); posts anything due in the last 3 hours, never twice
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "Optional: post these schedule ids now (space separated)"
+        required: false
+permissions:
+  contents: write
+concurrency:
+  group: autopost
+  cancel-in-progress: false
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Post due items
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+        run: |
+          if [ -n "${{ github.event.inputs.ids }}" ]; then
+            python3 poster.py --force ${{ github.event.inputs.ids }}
+          else
+            python3 poster.py
+          fi
+      - name: Save posted log
+        run: |
+          git config user.name "prarabdha-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add posted.json 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "posted log update" && git push)

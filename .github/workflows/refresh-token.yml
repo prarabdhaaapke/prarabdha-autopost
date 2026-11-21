@@ -1,0 +1,21 @@
+name: Refresh Instagram token
+on:
+  schedule:
+    - cron: "17 3 1,15 * *"     # 1st and 15th of each month; tokens last 60 days
+  workflow_dispatch:
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refresh and save the long-lived token
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          NEW=$(curl -s "https://graph.facebook.com/v22.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${APP_ID}&client_secret=${APP_SECRET}&fb_exchange_token=${IG_TOKEN}" | python3 -c "import sys,json;print(json.load(sys.stdin).get('access_token',''))")
+          if [ -z "$NEW" ]; then echo "Refresh failed"; exit 1; fi
+          echo "::add-mask::$NEW"
+          gh secret set IG_TOKEN --body "$NEW" --repo "${{ github.repository }}"
+          echo "Token refreshed"
