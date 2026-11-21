@@ -14,7 +14,12 @@ jobs:
           APP_SECRET: ${{ secrets.APP_SECRET }}
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          NEW=$(curl -s "https://graph.facebook.com/v22.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${APP_ID}&client_secret=${APP_SECRET}&fb_exchange_token=${IG_TOKEN}" | python3 -c "import sys,json;print(json.load(sys.stdin).get('access_token',''))")
+          if [ -n "${APP_ID}" ] && [ "${{ vars.IG_API_HOST }}" = "graph.facebook.com" ]; then
+            URL="https://graph.facebook.com/v22.0/oauth/access_token?grant_type=fb_exchange_token&client_id=${APP_ID}&client_secret=${APP_SECRET}&fb_exchange_token=${IG_TOKEN}"
+          else
+            URL="https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${IG_TOKEN}"
+          fi
+          NEW=$(curl -s "$URL" | python3 -c "import sys,json;print(json.load(sys.stdin).get('access_token',''))")
           if [ -z "$NEW" ]; then echo "Refresh failed"; exit 1; fi
           echo "::add-mask::$NEW"
           gh secret set IG_TOKEN --body "$NEW" --repo "${{ github.repository }}"

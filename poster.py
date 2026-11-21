@@ -12,7 +12,9 @@ Secrets (set in GitHub > Settings > Secrets and variables > Actions):
 import json, os, sys, time, datetime as dt
 import urllib.request, urllib.parse, urllib.error
 
-API = "https://graph.facebook.com/v22.0"
+# Instagram Login tokens use graph.instagram.com (default); Facebook Login tokens use graph.facebook.com.
+HOST = os.environ.get("IG_API_HOST") or "graph.instagram.com"
+API = f"https://{HOST}/v22.0"
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 WINDOW_MIN = int(os.environ.get("WINDOW_MIN", "180"))      # post items due within the last N minutes
 REPO = os.environ.get("GITHUB_REPOSITORY", "")             # owner/name, set by Actions
@@ -54,7 +56,7 @@ def pick_audio(item):
     """Return an audio_configuration JSON string, or None.
     item["audio"]: "trending" picks the top trending licensed track; or a specific audio id."""
     a = item.get("audio")
-    if not a: return None
+    if not a or HOST != "graph.facebook.com": return None   # licensed audio needs a Facebook Login token
     try:
         if a == "trending":
             res = call("GET", "ig_audio", audio_type="music", user_id=os.environ["IG_USER_ID"])
@@ -97,8 +99,10 @@ def due(item, now):
     return when <= now and (now - when).total_seconds() <= WINDOW_MIN * 60 or item.get("post_now")
 
 def main():
-    if not os.environ.get("IG_TOKEN") or not os.environ.get("IG_USER_ID"):
-        print("IG_TOKEN / IG_USER_ID not set yet: nothing to do. Add them in Settings > Secrets."); return
+    if not os.environ.get("IG_TOKEN"):
+        print("IG_TOKEN not set yet: nothing to do. Add it in Settings > Secrets."); return
+    if not os.environ.get("IG_USER_ID"):
+        os.environ["IG_USER_ID"] = "me"
     sched = json.load(open("schedule.json"))
     done = json.load(open("posted.json")) if os.path.exists("posted.json") else {}
     now = dt.datetime.now(IST); changed = False

@@ -21,6 +21,7 @@ jobs:
         env:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_API_HOST: ${{ vars.IG_API_HOST }}
         run: |
           if [ -n "${{ github.event.inputs.ids }}" ]; then
             python3 poster.py --force ${{ github.event.inputs.ids }}
