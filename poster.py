@@ -71,6 +71,7 @@ def pick_audio(item):
                 lst = [x for x in lst if any(w in json.dumps(x).lower() for w in words)]
             if not lst: print("  no licensed match; using the reel's own music"); return None
             a = str(lst[0]["id"]); print("  using audio:", lst[0].get("title", a))
+            item["_audio_used"] = f'{lst[0].get("title", "")} ({a})'
         return json.dumps({"audio_id": str(a), "audio_volume": item.get("audio_volume", 60),
                            "video_volume": item.get("video_volume", 25)})
     except Exception as e:
@@ -138,7 +139,8 @@ def main():
         if DRY: continue
         try:
             mid = {"reel": post_reel, "carousel": post_carousel, "image": post_image}[it["type"]](it)
-            done[it["id"]] = {"media_id": mid, "posted_at": dt.datetime.now(IST).isoformat(timespec="seconds")}
+            done[it["id"]] = {"media_id": mid, "posted_at": dt.datetime.now(IST).isoformat(timespec="seconds"),
+                              "audio": it.get("_audio_used", "own music")}
             changed = True; print("  live, media id", mid)
         except Exception as e:
             print("  FAILED", it["id"], e)
