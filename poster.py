@@ -104,6 +104,17 @@ def main():
         print("IG_TOKEN not set yet: nothing to do. Add it in Settings > Secrets."); return
     if not os.environ.get("IG_USER_ID"):
         os.environ["IG_USER_ID"] = "17841443448260782"   # @prarabdhaaapke
+    # health check: is the token valid? (written once a day to status.json)
+    try:
+        me = call("GET", os.environ["IG_USER_ID"], fields="username")
+        st = {"token_ok": True, "username": me.get("username"), "api": HOST}
+    except Exception as e:
+        st = {"token_ok": False, "error": str(e)[:300], "api": HOST}
+    st["checked_on"] = dt.datetime.now(IST).strftime("%Y-%m-%d")
+    old = json.load(open("status.json")) if os.path.exists("status.json") else {}
+    if {k: v for k, v in old.items() if k != "error"} != {k: v for k, v in st.items() if k != "error"}:
+        json.dump(st, open("status.json", "w"), indent=1)
+    print("token check:", st)
     sched = json.load(open("schedule.json"))
     done = json.load(open("posted.json")) if os.path.exists("posted.json") else {}
     now = dt.datetime.now(IST); changed = False

@@ -2,6 +2,9 @@ name: Post due Instagram content
 on:
   schedule:
     - cron: "*/30 * * * *"      # every 30 min (UTC); posts anything due in the last 3 hours, never twice
+  push:
+    branches: [main]
+    paths: ["schedule.json", "poster.py", ".github/workflows/post.yml"]
   workflow_dispatch:
     inputs:
       ids:
@@ -32,5 +35,5 @@ jobs:
         run: |
           git config user.name "prarabdha-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add posted.json 2>/dev/null || true
-          git diff --cached --quiet || (git commit -m "posted log update" && git push)
+          git add posted.json status.json 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "bot: posted log / status update" && git push)
