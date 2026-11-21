@@ -82,14 +82,14 @@ def post_reel(item):
 def post_carousel(item):
     uid = os.environ["IG_USER_ID"]; kids = []
     for f in item["files"]:
-        cid = call("POST", f"{uid}/media", image_url=media_url(f), is_carousel_item="true")["id"]
+        cid = call("POST", f"{uid}/media", image_url=raw_url(f), is_carousel_item="true")["id"]
         wait_ready(cid, 3); kids.append(cid)
     c = call("POST", f"{uid}/media", media_type="CAROUSEL", children=",".join(kids), caption=item["caption"])["id"]
     wait_ready(c, 3); return publish(c)
 
 def post_image(item):
     uid = os.environ["IG_USER_ID"]
-    c = call("POST", f"{uid}/media", image_url=media_url(item["files"][0]), caption=item["caption"])["id"]
+    c = call("POST", f"{uid}/media", image_url=raw_url(item["files"][0]), caption=item["caption"])["id"]
     wait_ready(c, 3); return publish(c)
 
 def due(item, now):
@@ -97,6 +97,8 @@ def due(item, now):
     return when <= now and (now - when).total_seconds() <= WINDOW_MIN * 60 or item.get("post_now")
 
 def main():
+    if not os.environ.get("IG_TOKEN") or not os.environ.get("IG_USER_ID"):
+        print("IG_TOKEN / IG_USER_ID not set yet: nothing to do. Add them in Settings > Secrets."); return
     sched = json.load(open("schedule.json"))
     done = json.load(open("posted.json")) if os.path.exists("posted.json") else {}
     now = dt.datetime.now(IST); changed = False
