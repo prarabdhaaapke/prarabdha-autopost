@@ -12,8 +12,8 @@ Secrets (set in GitHub > Settings > Secrets and variables > Actions):
 import json, os, sys, time, datetime as dt
 import urllib.request, urllib.parse, urllib.error
 
-# Instagram Login tokens use graph.instagram.com (default); Facebook Login tokens use graph.facebook.com.
-HOST = os.environ.get("IG_API_HOST") or "graph.instagram.com"
+# System-user / Facebook Login tokens use graph.facebook.com (default); Instagram Login tokens use graph.instagram.com.
+HOST = os.environ.get("IG_API_HOST") or "graph.facebook.com"
 API = f"https://{HOST}/v22.0"
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 WINDOW_MIN = int(os.environ.get("WINDOW_MIN", "180"))      # post items due within the last N minutes
@@ -102,7 +102,7 @@ def main():
     if not os.environ.get("IG_TOKEN"):
         print("IG_TOKEN not set yet: nothing to do. Add it in Settings > Secrets."); return
     if not os.environ.get("IG_USER_ID"):
-        os.environ["IG_USER_ID"] = "me"
+        os.environ["IG_USER_ID"] = "17841443448260782"   # @prarabdhaaapke
     sched = json.load(open("schedule.json"))
     done = json.load(open("posted.json")) if os.path.exists("posted.json") else {}
     now = dt.datetime.now(IST); changed = False
