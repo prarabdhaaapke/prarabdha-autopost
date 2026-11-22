@@ -22,8 +22,10 @@ REPO = os.environ.get("GITHUB_REPOSITORY", "")             # owner/name, set by 
 BRANCH = os.environ.get("GITHUB_REF_NAME", "main")
 DRY = os.environ.get("DRY_RUN") == "1"
 
+SHA = os.environ.get("GITHUB_SHA", "") or BRANCH            # pin to the exact commit so the CDN never serves an old file
+
 def media_url(path):
-    return f"https://cdn.jsdelivr.net/gh/{REPO}@{BRANCH}/{path}"
+    return f"https://cdn.jsdelivr.net/gh/{REPO}@{SHA}/{path}"
 
 def raw_url(path):
     return f"https://raw.githubusercontent.com/{REPO}/{BRANCH}/{path}"
@@ -146,6 +148,7 @@ def main():
         ids = [i["id"] for i in sched if i["id"] not in done and due(i, now)]
     for it in [i for i in sched if i["id"] in ids]:
         if it["id"] in done: print("already posted", it["id"]); continue
+        if "netlify" in it.get("caption", "").lower(): print("SKIP (old netlify link in caption):", it["id"]); continue
         print("posting", it["id"], it["type"], it["when_ist"])
         if DRY: continue
         try:
