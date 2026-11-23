@@ -1,6 +1,6 @@
 {
  "token_ok": false,
- "error": "GET 17841443448260782 -> 400: {\"error\":{\"message\":\"API access blocked.\",\"code\":200,\"type\":\"OAuthException\",\"error_subcode\":5258005,\"fbtrace_id\":\"AfpUo5WsJI14C2B0fBUgRGn\"}}",
+ "error": "GET 17841443448260782 -> 400: {\"error\":{\"message\":\"API access blocked.\",\"code\":200,\"type\":\"OAuthException\",\"error_subcode\":5258005,\"fbtrace_id\":\"A7xsOk5T_OcipcEGkGFmNMH\"}}",
  "api": "graph.facebook.com",
- "checked_on": "2026-11-23"
+ "checked_on": "2026-11-24"
 }
