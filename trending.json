@@ -1,5 +1,5 @@
 {
- "fetched_on": "2026-11-28",
- "music_error": "GET ig_audio -> 400: {\"error\":{\"message\":\"API access blocked.\",\"code\":200,\"type\":\"OAuthException\",\"error_subcode\":5258005,\"fbtrace_id\":\"AgH7sUvvo2qXRPoHezL5FcA\"}}",
- "original_sound_error": "GET ig_audio -> 400: {\"error\":{\"message\":\"API access blocked.\",\"code\":200,\"type\":\"OAuthException\",\"error_subcode\":5258005,\"fbtrace_id\":\"A7n0HnmY46mr7QJtjTTQ5NL\"}}"
+ "fetched_on": "2026-11-29",
+ "music_error": "GET ig_audio -> 400: {\"error\":{\"message\":\"Authorization Error\",\"code\":100,\"type\":\"GraphMethodException\",\"error_subcode\":33,\"fbtrace_id\":\"APm24U_iImBmBgmiSNF3Aae\"}}",
+ "original_sound_error": "GET ig_audio -> 400: {\"error\":{\"message\":\"Authorization Error\",\"code\":100,\"type\":\"GraphMethodException\",\"error_subcode\":33,\"fbtrace_id\":\"ALVcTnPQxdrg4GdSjReEKKW\"}}"
 }
